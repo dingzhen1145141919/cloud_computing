@@ -29,7 +29,9 @@ jobs:
 
       # 步骤3：安装依赖（包含eslint，对应package.json的devDependencies）
       - name: Install dependencies
-        run: npm install
+        run: 
+          npm config set registry https://registry.npmmirror.com/ 
+          npm install
 
       # 新增步骤：代码质量检查（Run Lint）——选项二核心步骤
       - name: Run Lint
