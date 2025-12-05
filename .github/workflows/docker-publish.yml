@@ -67,6 +67,6 @@ jobs:
           context: .  # 构建上下文：当前仓库根目录
           push: true  # 开启“推送”功能（false仅构建不推送）
           # 镜像标签：同时打latest和Commit SHA标签（YAML列表格式，缩进要对齐）
-          tags:
-            - ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
-            - ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.sha::7 }}
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.sha::7 }}
