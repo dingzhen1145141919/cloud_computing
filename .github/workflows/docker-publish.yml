@@ -4,7 +4,7 @@ name: Docker Build and Push
 # 触发条件：仅当代码推送到 main 分支时自动触发
 on:
   push:
-    branches: ["main"]  # 若你的仓库默认分支是 master，改为 ["master"]
+    branches: ["main"]  # 若仓库默认分支是 master，改为 ["master"]
 
 # 权限配置：必须开启 packages:write 才能推送镜像（否则会失败）
 permissions:
@@ -31,7 +31,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # 新增步骤：代码质量检查（Run Lint）
+      # 新增步骤：代码质量检查（Run Lint）——选项二核心步骤
       - name: Run Lint
         run: npm run lint  # 执行package.json中配置的lint脚本
 
@@ -44,7 +44,11 @@ jobs:
     needs: test  # 依赖关系：test成功才执行，失败则跳过
     runs-on: ubuntu-latest
     steps:
-      # 步骤1：再次拉取代码（Job独立，需重新拉取）
+      # 新增步骤：用Bash截取SHA前7位，保存到环境变量（解决表达式语法错误）
+      - name: Set short SHA
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV  # Bash原生语法，无兼容性问题
+
+      # 步骤1：拉取仓库代码（Job独立，需重新拉取）
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -57,16 +61,16 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io  # GHCR的固定地址（不能改）
-          username: ${{ github.actor }}  # 自动获取你的GitHub用户名（无需手动填）
-          password: ${{ secrets.GITHUB_TOKEN }}  # GitHub自动生成的密钥（无需手动创建！）
+          username: ${{ github.actor }}  # 自动获取GitHub用户名（无需手动填）
+          password: ${{ secrets.GITHUB_TOKEN }}  # GitHub自动生成的密钥（无需手动创建）
 
-      # 步骤4：构建并推送Docker镜像
+      # 步骤4：构建并推送Docker镜像（引用环境变量SHORT_SHA作为标签）
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .  # 构建上下文：当前仓库根目录
           push: true  # 开启“推送”功能（false仅构建不推送）
-          # 镜像标签：同时打latest和Commit SHA标签（YAML列表格式，缩进要对齐）
+          # 镜像标签：用环境变量SHORT_SHA，避免表达式语法错误
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.sha.substr(0, 7) }}
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ env.SHORT_SHA }}
