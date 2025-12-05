@@ -70,7 +70,7 @@ jobs:
         with:
           context: .  # 构建上下文：当前仓库根目录
           push: true  # 开启“推送”功能（false仅构建不推送）
-          # 镜像标签：用环境变量SHORT_SHA，避免表达式语法错误
+    # 镜像标签：固定为作业要求的ci-cd-practice，搭配latest和短SHA标签
           tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ env.SHORT_SHA }}
+            ghcr.io/${{ github.repository_owner }}/ci-cd-practice:latest
+            ghcr.io/${{ github.repository_owner }}/ci-cd-practice:${{ env.SHORT_SHA }}
