@@ -1,0 +1,68 @@
+# 工作流名称（实验要求的名称，便于在Actions页面识别）
+name: Docker Build and Push
+
+# 触发条件：仅当代码推送到 main 分支时自动触发
+on:
+  push:
+    branches: ["main"]  # 若你的仓库默认分支是 master，改为 ["master"]
+
+# 权限配置：必须开启 packages:write 才能推送镜像（否则会失败）
+permissions:
+  contents: read  # 允许读取仓库代码（默认权限）
+  packages: write # 允许写入GitHub Packages（核心权限，缺一不可）
+
+# 作业（Jobs）：定义两个任务，按“测试→构建推送”顺序执行
+jobs:
+  # 第一个Job：测试代码（只有测试通过，才会执行后续构建）
+  test:
+    runs-on: ubuntu-latest  # 使用GitHub托管的Ubuntu运行器
+    steps:
+      # 步骤1：拉取仓库代码（每个Job是独立环境，必须重新拉取）
+      - name: Checkout repository
+        uses: actions/checkout@v4  # GitHub官方Action，用于拉取代码
+
+      # 步骤2：配置Node.js环境（和Dockerfile的Node 18版本一致）
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'  # 固定Node版本，避免环境不一致
+
+      # 步骤3：安装依赖（对应package.json）
+      - name: Install dependencies
+        run: npm install
+
+      # 步骤4：运行测试脚本（对应package.json的npm test）
+      - name: Run tests
+        run: npm test
+
+  # 第二个Job：构建并推送Docker镜像（依赖test Job成功后才执行）
+  build-and-push:
+    needs: test  # 依赖关系：test成功才执行，失败则跳过
+    runs-on: ubuntu-latest
+    steps:
+      # 步骤1：再次拉取代码（Job独立，需重新拉取）
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 步骤2：配置Docker构建环境（Docker官方推荐，优化构建速度和兼容性）
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 步骤3：登录GitHub容器仓库（GHCR）
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io  # GHCR的固定地址（不能改）
+          username: ${{ github.actor }}  # 自动获取你的GitHub用户名（无需手动填）
+          password: ${{ secrets.GITHUB_TOKEN }}  # GitHub自动生成的密钥（无需手动创建！）
+
+      # 步骤4：构建并推送Docker镜像
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .  # 构建上下文：当前仓库根目录（必须写，文档可能漏了这行）
+          push: true  # 开启“推送”功能（false仅构建不推送）
+          # 镜像标签：必须全小写！格式：ghcr.io/用户名/仓库名:标签
+          tags: ghcr.io/${{ github.repository_owner }}/ci-cd-practice:latest
+          # 说明：github.repository_owner 自动获取你的GitHub用户名（dingzhen1145141919）
+          # 最终镜像名：ghcr.io/dingzhen1145141919/ci-cd-practice:latest
