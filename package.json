@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
-    "lint": "eslint ."  // 新增：代码质量检查脚本
+    "lint": "eslint ."  
   },
   "dependencies": {},
   "devDependencies": {
-    "eslint": "^8.57.0"  // 新增：代码检查工具eslint
+    "eslint": "^8.57.0"  
   }
 }
