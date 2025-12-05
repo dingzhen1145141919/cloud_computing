@@ -13,7 +13,7 @@ permissions:
 
 # 作业（Jobs）：定义两个任务，按“测试→构建推送”顺序执行
 jobs:
-  # 第一个Job：测试代码（只有测试通过，才会执行后续构建）
+  # 第一个Job：测试代码（包含代码质量检查，只有测试通过才执行后续构建）
   test:
     runs-on: ubuntu-latest  # 使用GitHub托管的Ubuntu运行器
     steps:
@@ -27,9 +27,13 @@ jobs:
         with:
           node-version: '18'  # 固定Node版本，避免环境不一致
 
-      # 步骤3：安装依赖（对应package.json）
+      # 步骤3：安装依赖（包含eslint，对应package.json的devDependencies）
       - name: Install dependencies
         run: npm install
+
+      # 新增步骤：代码质量检查（Run Lint）
+      - name: Run Lint
+        run: npm run lint  # 执行package.json中配置的lint脚本
 
       # 步骤4：运行测试脚本（对应package.json的npm test）
       - name: Run tests
