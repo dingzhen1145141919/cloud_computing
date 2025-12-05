@@ -3,7 +3,7 @@ const http = require("http");
 const server = http.createServer((req, res) => {
   res.statusCode = 200;
   res.setHeader("Content-Type", "text/plain");
-  res.end("Hello Cloud Computing Class!"); // 访问服务时的输出
+  res.end("Hello Cloud Computing Class!"); 
 });
 // 监听3000端口
 server.listen(3000, () => {
