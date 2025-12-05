@@ -69,4 +69,4 @@ jobs:
           # 镜像标签：同时打latest和Commit SHA标签（YAML列表格式，缩进要对齐）
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.sha:0:7 }}
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.sha | substr(0, 7) }}
