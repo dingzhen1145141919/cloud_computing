@@ -60,9 +60,9 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .  # 构建上下文：当前仓库根目录（必须写，文档可能漏了这行）
+          context: .  # 构建上下文：当前仓库根目录
           push: true  # 开启“推送”功能（false仅构建不推送）
-          # 镜像标签：必须全小写！格式：ghcr.io/用户名/仓库名:标签
-          tags: ghcr.io/${{ github.repository_owner }}/ci-cd-practice:latest
-          # 说明：github.repository_owner 自动获取你的GitHub用户名（dingzhen1145141919）
-          # 最终镜像名：ghcr.io/dingzhen1145141919/ci-cd-practice:latest
+          # 镜像标签：同时打latest和Commit SHA标签（YAML列表格式，缩进要对齐）
+          tags:
+            - ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
+            - ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.sha::7 }}
