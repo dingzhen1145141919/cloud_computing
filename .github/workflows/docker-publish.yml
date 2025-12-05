@@ -29,7 +29,7 @@ jobs:
 
       # 步骤3：安装依赖（包含eslint，对应package.json的devDependencies）
       - name: Install dependencies
-        run: 
+        run: ｜
           npm config set registry https://registry.npmmirror.com/ 
           npm install
 
